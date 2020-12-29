@@ -52,75 +52,87 @@ Vector2 ternaryTest(float signedAngle) {
 
 int main()
 {
-	//const int numOfThreads = thread::hardware_concurrency();
-	//cout << "number of threads: " << numOfThreads << "\n";
-	cout << "Disclaimer: this application is single threaded until further learning.\n";
+	const int numOfThreads = thread::hardware_concurrency();
+	cout << "number of threads: " << numOfThreads << "\n";
 	cout << fixed;
 	cout.precision(2);
+	vector<thread*> threads;
+	vector<int> counting;
 	default_random_engine generator;
 	uniform_real_distribution<float> distribution(-180, 180);
 	auto randAngle = bind(distribution, generator);
 	vector<double> ternary, ifelse;
-	long long iterations = 1000, iterationsPerTest = 1000000, totalIterations = 0;
-	float signedAngle = 0;
-	string sInput;
-	Vector2 returnedV2 = Vector2(0, 0);
-	cout << "\nPress enter to begin\n";
-	getline(cin, sInput, '\n');
-	cout << "Starting";
-	this_thread::sleep_for(1500ms);
-	for (long long i = 0; i < iterations; i++) {
-		double tern = 0, ifel = 0;
-		auto start = chrono::high_resolution_clock::now();
-		signedAngle = randAngle();
-		for (long long i2 = 0; i2 < iterationsPerTest; i2++) {
-			signedAngle = randAngle();
-			Vector2 returnedV2 = ifelseTest(signedAngle);
-			totalIterations++;
-		}
-		auto end = chrono::high_resolution_clock::now();
-		chrono::duration<double, std::milli> elapsed = end - start;
-		ifel = elapsed.count();
-		elapsed.zero();
-		ifelse.push_back(ifel);
-		start = chrono::high_resolution_clock::now();
-		for (int i2 = 0; i2 < iterationsPerTest; i2++) {
-			signedAngle = randAngle();
-			Vector2 returnedV2 = ternaryTest(signedAngle);
-			totalIterations++;
-		}
-		end = chrono::high_resolution_clock::now();
-		elapsed = end - start;
-		tern = elapsed.count();
-		ternary.push_back(tern);
-		cout << "\nIteration " << i << ":" << endl << "ifelse - " << toString(ifel) << endl << "ternary - " << toString(tern) << endl;
+	long long iterations = 500, iterationsPerTest = 1000000, totalIterationsMain = 0;
+	long long iterations2 = iterations * 2;
+	system("pause");
+	cout << "Starting\n\n";
+	for (int c = 0; c < numOfThreads; c++) {
+		threads.push_back(new thread([&]() {
+			while (counting.size() < iterations) {
+				counting.push_back(1);
+				long long totalIterations = 0;
+				double tern = 0, ifel = 0;
+				auto start = chrono::high_resolution_clock::now();
+				float signedAngle = randAngle();
+				for (long long i2 = 0; i2 < iterationsPerTest; i2++) {
+					signedAngle = randAngle();
+					Vector2 returnedV2 = ifelseTest(signedAngle);
+					totalIterations++;
+				}
+				auto end = chrono::high_resolution_clock::now();
+				chrono::duration<double, std::milli> elapsed = end - start;
+				ifel = elapsed.count();
+				elapsed.zero();
+				ifelse.push_back(ifel);
+				start = chrono::high_resolution_clock::now();
+				for (int i2 = 0; i2 < iterationsPerTest; i2++) {
+					signedAngle = randAngle();
+					Vector2 returnedV2 = ternaryTest(signedAngle);
+					totalIterations++;
+				}
+				end = chrono::high_resolution_clock::now();
+				elapsed = end - start;
+				tern = elapsed.count();
+				ternary.push_back(tern);
+				totalIterationsMain += totalIterations;
+				cout << endl << "ifelse - " << toString(ifel) << endl << "ternary - " << toString(tern) << endl;
+			}
+			cout << "\nInverting\n";
+			this_thread::sleep_for(1500ms);
+			while (counting.size() < iterations2) {
+				counting.push_back(1);
+				long long totalIterations2 = 0;
+				double tern = 0, ifel = 0;
+				float signedAngle = randAngle();
+				auto start = chrono::high_resolution_clock::now();
+				for (long long i2 = 0; i2 < iterationsPerTest; i2++) {
+					signedAngle = randAngle();
+					Vector2 returnedV2 = ternaryTest(signedAngle);
+					totalIterations2++;
+				}
+				auto end = chrono::high_resolution_clock::now();
+				chrono::duration<double, std::milli> elapsed = end - start;
+				tern = elapsed.count();
+				elapsed.zero();
+				ternary.push_back(tern);
+				start = chrono::high_resolution_clock::now();
+				for (long long i2 = 0; i2 < iterationsPerTest; i2++) {
+					signedAngle = randAngle();
+					Vector2 returnedV2 = ifelseTest(signedAngle);
+					totalIterations2++;
+				}
+				end = chrono::high_resolution_clock::now();
+				elapsed = end - start;
+				ifel = elapsed.count();
+				ifelse.push_back(ifel);
+				totalIterationsMain += totalIterations2;
+				cout << endl << "ifelse - " << toString(ifel) << endl << "ternary - " << toString(tern) << endl;
+			}
+			}));
+		cout << "Thread " << c << " - Starting\n";
 	}
-	cout << "\nInverting\n";
-	this_thread::sleep_for(500ms);
-	for (int i = 0; i < iterations; i++) {
-		double tern = 0, ifel = 0;
-		auto start = chrono::high_resolution_clock::now();
-		for (long long i2 = 0; i2 < iterationsPerTest; i2++) {
-			signedAngle = randAngle();
-			Vector2 returnedV2 = ternaryTest(signedAngle);
-			totalIterations++;
-		}
-		auto end = chrono::high_resolution_clock::now();
-		chrono::duration<double, std::milli> elapsed = end - start;
-		tern = elapsed.count();
-		elapsed.zero();
-		ternary.push_back(tern);
-		start = chrono::high_resolution_clock::now();
-		for (long long i2 = 0; i2 < iterationsPerTest; i2++) {
-			signedAngle = randAngle();
-			Vector2 returnedV2 = ifelseTest(signedAngle);
-			totalIterations++;
-		}
-		end = chrono::high_resolution_clock::now();
-		elapsed = end - start;
-		ifel = elapsed.count();
-		ifelse.push_back(ifel);
-		cout << "\nIteration " << i << ":" << endl << "ifelse - " << toString(ifel) << endl << "ternary - " << toString(tern) << endl;
+	for (thread*& th : threads) {
+		th->join();
 	}
 	double totalTime = 0;
 	for (double time : ifelse) {
@@ -132,26 +144,6 @@ int main()
 		totalTime += time;
 	}
 	cout << "\nAvg ternary: " << toString(totalTime / ternary.size());
-	cout << "\ntotal iterations: " << totalIterations << "\n";
-	getline(cin, sInput, '\n');
+	cout << "\ntotal iterations: " << totalIterationsMain << "\n";
+	system("pause");
 }
-
-
-/*
-		vector<thread> threads;
-	vector<int> counting;
-
-
-for (int i = 0; i < numOfThreads; i++) {
-			thread thread([](vector<int>& c) {
-				this_thread::sleep_for(1000ms);
-				c.push_back(1);
-				}, ref(counting));
-			threads.push_back(move(thread));
-			string s = "Thread " + toString(i) + " - Starting.\n";
-			cout << s;
-		}
-
-		for (thread& th : threads) {
-			th.join();
-		}	*/
