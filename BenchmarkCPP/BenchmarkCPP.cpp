@@ -146,4 +146,10 @@ int main()
 	cout << "\nAvg ternary: " << toString(totalTime / ternary.size());
 	cout << "\ntotal iterations: " << totalIterationsMain << "\n";
 	system("pause");
+	for (thread*& t : threads)
+		delete t;
+	threads.clear();
+	counting.clear();
+	ternary.clear();
+	ifelse.clear();
 }
